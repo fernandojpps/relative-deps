@@ -15,6 +15,11 @@ yargs
     handler: relativeDeps.watchRelativeDeps
   })
   .command({
+    command: "watch-next",
+    describe: "Watch relative deps and install on change, reloading next dev process",
+    handler: relativeDeps.watchRelativeDepsWithNext
+  })
+  .command({
     command: "init",
     describe: "Initialize relative-deps",
     handler: relativeDeps.initRelativeDeps

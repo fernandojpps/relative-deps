@@ -25,7 +25,7 @@ async function installRelativeDeps() {
   const depNames = Object.keys(relativeDependencies)
   for (const name of depNames) {
     const libDir = path.resolve(targetDir, relativeDependencies[name])
-    console.log(`[relative-deps] Checkinga '${name}' in '${libDir}'`)
+    console.log(`[relative-deps] Checking '${name}' in '${libDir}'`)
 
     const regularDep =
       (projectPkgJson.package.dependencies && projectPkgJson.package.dependencies[name]) ||
@@ -60,6 +60,17 @@ async function installRelativeDeps() {
       fs.writeFileSync(hashStore.file, hashStore.hash)
       console.log(`[relative-deps] Re-installing ${name}... DONE`)
     }
+    return hasChanges
+  }
+}
+
+async function installRelativeDepsWithNext() {
+  const reloaded = await installRelativeDeps()
+  if (reloaded) {
+    console.log(`[relative-deps] Reloading next dev evironment`)
+    rimraf.sync(path.join(process.cwd(), ".next"))
+    spawn.sync(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2] })
+    console.log(`[relative-deps] Reloading next dev evironment... DONE`)
   }
 }
 
@@ -75,6 +86,21 @@ async function watchRelativeDeps() {
 
   Object.values(relativeDependencies).forEach(path => {
     fs.watch(path, { recursive: true }, debounce(installRelativeDeps, 500))
+  });
+}
+
+async function watchRelativeDepsWithNext() {
+  const projectPkgJson = readPkgUp.sync()
+
+  const relativeDependencies = projectPkgJson.package.relativeDependencies
+
+  if (!relativeDependencies) {
+    console.warn("[relative-deps][WARN] No 'relativeDependencies' specified in package.json")
+    process.exit(0)
+  }
+
+  Object.values(relativeDependencies).forEach(path => {
+    fs.watch(path, { recursive: true }, debounce(installRelativeDepsWithNext, 500))
   });
 }
 
@@ -162,14 +188,14 @@ function packAndInstallLibrary(name, dir, targetDir) {
 
     console.log(`[relative-deps] Extracting "${fullPackageName}" to ${libDestDir}`)
 
-    const [cwd, file] = [libDestDir, fullPackageName].map(absolutePath => 
+    const [cwd, file] = [libDestDir, fullPackageName].map(absolutePath =>
       path.relative(process.cwd(), absolutePath)
     )
 
     tar.extract({
       cwd,
       file,
-      gzip: true, 
+      gzip: true,
       stripComponents: 1,
       sync: true
     })
@@ -300,6 +326,7 @@ function getPackageJson() {
 }
 
 module.exports.watchRelativeDeps = watchRelativeDeps
+module.exports.watchRelativeDepsWithNext = watchRelativeDepsWithNext
 module.exports.installRelativeDeps = installRelativeDeps
 module.exports.initRelativeDeps = initRelativeDeps
 module.exports.addRelativeDeps = addRelativeDeps
