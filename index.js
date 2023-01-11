@@ -64,12 +64,15 @@ async function installRelativeDeps() {
   }
 }
 
+let abortSignal = undefined
 async function installRelativeDepsWithNext() {
   const reloaded = await installRelativeDeps()
   if (reloaded) {
     console.log(`[relative-deps] Reloading next dev evironment`)
+    if (abortSignal) abortSignal.abort()
     rimraf.sync(path.join(process.cwd(), ".next"))
-    spawn.sync(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2] })
+    abortSignal = new AbortSignal()
+    spawn.sync(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2], signal: abortSignal })
     console.log(`[relative-deps] Reloading next dev evironment... DONE`)
   }
 }
