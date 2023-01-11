@@ -25,7 +25,7 @@ async function installRelativeDeps() {
   const depNames = Object.keys(relativeDependencies)
   for (const name of depNames) {
     const libDir = path.resolve(targetDir, relativeDependencies[name])
-    console.log(`[relative-deps] Checking '${name}' in '${libDir}'`)
+    console.log(`[relative-deps] Checkinga '${name}' in '${libDir}'`)
 
     const regularDep =
       (projectPkgJson.package.dependencies && projectPkgJson.package.dependencies[name]) ||
