@@ -66,6 +66,7 @@ async function installRelativeDeps() {
 
 let existingProcess = undefined
 async function installRelativeDepsWithNext() {
+  const startMs = new Date()
   const reloaded = await installRelativeDeps()
   if (reloaded) {
     console.log(`[relative-deps] Reloading next dev evironment`)
@@ -75,6 +76,7 @@ async function installRelativeDepsWithNext() {
     if (existingProcess) existingProcess.kill()
     existingProcess = spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2] })
     console.log(`[relative-deps] Reloading next dev evironment... DONE`)
+    console.log(`[relative-deps] Ready after ${(new Date().valueOf() - startMs.valueOf())/1000}s`)
   }
 }
 
