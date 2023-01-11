@@ -102,6 +102,7 @@ async function watchRelativeDepsWithNext() {
     process.exit(0)
   }
 
+  abortSignal = new AbortController()
   spawn.sync(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2], signal: abortSignal })
   Object.values(relativeDependencies).forEach(path => {
     fs.watch(path, { recursive: true }, debounce(installRelativeDepsWithNext, 500))
