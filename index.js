@@ -106,7 +106,6 @@ async function watchRelativeDepsWithNext() {
   }
 
   await installRelativeDeps()
-  console.log(`[relative-deps] Re-installing ${name}... DONE`)
   existingProcess = spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2] })
   Object.values(relativeDependencies).forEach(path => {
     fs.watch(path, { recursive: true }, debounce(installRelativeDepsWithNext, 500))
