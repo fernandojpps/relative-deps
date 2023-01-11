@@ -74,7 +74,7 @@ async function installRelativeDepsWithNext() {
       rimraf.sync(path.join(process.cwd(), ".next"))
     }
     abortSignal = new AbortController()
-    spawn.sync(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2], signal: abortSignal })
+    spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2], signal: abortSignal })
     console.log(`[relative-deps] Reloading next dev evironment... DONE`)
   }
 }
@@ -105,7 +105,7 @@ async function watchRelativeDepsWithNext() {
   }
 
   abortSignal = new AbortController()
-  spawn.sync(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2], signal: abortSignal })
+  spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2], signal: abortSignal })
   Object.values(relativeDependencies).forEach(path => {
     fs.watch(path, { recursive: true }, debounce(installRelativeDepsWithNext, 500))
   });
