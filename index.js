@@ -64,17 +64,16 @@ async function installRelativeDeps() {
   }
 }
 
-let abortController = undefined
+let existingProcess = undefined
 async function installRelativeDepsWithNext() {
   const reloaded = await installRelativeDeps()
   if (reloaded) {
     console.log(`[relative-deps] Reloading next dev evironment`)
-    if (abortController) abortController.abort()
-    abortController = new AbortController()
     if (fs.existsSync(".next")) {
       rimraf.sync(".next")
     }
-    spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2], signal: abortController.signal })
+    if (existingProcess) existingProcess.kill()
+    existingProcess = spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2] })
     console.log(`[relative-deps] Reloading next dev evironment... DONE`)
   }
 }
@@ -104,8 +103,7 @@ async function watchRelativeDepsWithNext() {
     process.exit(0)
   }
 
-  abortController = new AbortController()
-  spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2], signal: abortController.signal })
+  existingProcess = spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2] })
   Object.values(relativeDependencies).forEach(path => {
     fs.watch(path, { recursive: true }, debounce(installRelativeDepsWithNext, 500))
   });
