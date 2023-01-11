@@ -67,16 +67,16 @@ async function installRelativeDeps() {
 let existingProcess = undefined
 async function installRelativeDepsWithNext() {
   const startMs = new Date()
+  if (existingProcess) existingProcess.kill()
+  if (fs.existsSync(".next")) {
+    rimraf.sync(".next")
+  }
   const reloaded = await installRelativeDeps()
   if (reloaded) {
     console.log(`[relative-deps] Reloading next dev evironment`)
-    if (fs.existsSync(".next")) {
-      rimraf.sync(".next")
-    }
-    if (existingProcess) existingProcess.kill()
     existingProcess = spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2] })
     console.log(`[relative-deps] Reloading next dev evironment... DONE`)
-    console.log(`[relative-deps] Ready after ${(new Date().valueOf() - startMs.valueOf())/1000}s`)
+    console.log(`[relative-deps] Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
   }
 }
 
