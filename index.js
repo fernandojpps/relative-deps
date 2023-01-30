@@ -108,7 +108,7 @@ async function watchRelativeDepsWithNext() {
   await installRelativeDeps()
   existingProcess = spawn(["run", "dev"], { cwd: process.cwd(), stdio: [0, 1, 2] })
   Object.values(relativeDependencies).forEach(path => {
-    fs.watch(path, { recursive: true }, debounce(installRelativeDepsWithNext, 500))
+    fs.watch(path, { recursive: true }, debounce(installRelativeDepsWithNext, 2500))
   });
 }
 
