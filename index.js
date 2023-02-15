@@ -58,7 +58,7 @@ async function installRelativeDeps(skipBuild) {
             if (!skipBuild) {
                 buildLibrary(name, libDir)
             }
-            packAndInstallLibrary(name, libDir, targetDir)
+            await packAndInstallLibrary(name, libDir, targetDir)
             fs.writeFileSync(hashStore.file, hashStore.hash)
             console.log(`[relative-deps] Re-installing ${name}... DONE`)
         }
@@ -80,7 +80,7 @@ async function installRelativeDepsWithNext() {
         }
         obsoleteProcesses.forEach(p => p.kill())
         if (fs.existsSync(".next")) {
-            rimraf.sync(".next", {})
+            await rimraf(".next", {preserveRoot: true})
         }
         console.log(`[relative-deps] Reloading next dev evironment`)
         startDevelopmentProcess()
@@ -120,7 +120,7 @@ async function watchRelativeDepsWithNext() {
     }
 
     if (fs.existsSync(".next")) {
-        rimraf.sync(".next")
+        await rimraf(".next", {preserveRoot: true})
     }
     await installRelativeDeps()
     startDevelopmentProcess();
@@ -245,7 +245,7 @@ function buildAndWatchNextLibrary(name, dir) {
     }
 }
 
-function packAndInstallLibrary(name, dir, targetDir) {
+async function packAndInstallLibrary(name, dir, targetDir) {
     const libDestDir = path.join(targetDir, "node_modules", name)
     let fullPackageName
     try {
@@ -254,7 +254,7 @@ function packAndInstallLibrary(name, dir, targetDir) {
 
         if (fs.existsSync(libDestDir)) {
             // TODO: should we really remove it? Just overwritting could be fine
-            rimraf.sync(libDestDir)
+            await rimraf(libDestDir, {preserveRoot: true})
         }
         fs.mkdirSync(libDestDir, {recursive: true})
 
