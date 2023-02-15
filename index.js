@@ -24,7 +24,7 @@ async function installRelativeDeps(skipBuild) {
 
     const depNames = Object.keys(relativeDependencies)
     for (const name of depNames) {
-        const libDir = path.resolve(targetDir, relativeDependencies[name])
+        const libDir = path.join(path.resolve(targetDir, relativeDependencies[name]), 'dist')
         console.log(`\x1b[33m[relative-deps]\x1b[0m Checking '${name}' in '${libDir}'`)
 
         const regularDep =
