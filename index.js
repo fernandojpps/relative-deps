@@ -125,8 +125,11 @@ async function watchRelativeDepsWithNext() {
     await installRelativeDeps()
     startDevelopmentProcess();
 
-
     Object.values(relativeDependencies).forEach(p => {
+        const targetDir = path.dirname(projectPkgJson.path)
+        const name = p;
+        const libDir = path.resolve(targetDir, relativeDependencies[name])
+        buildAndWatchNextLibrary(name, libDir)
         fs.watch(
             path.join(p, "dist"),
             {recursive: true},
@@ -403,4 +406,5 @@ process.on('SIGINT', () => {
     if (cpxWatchProcess) cpxWatchProcess.kill('SIGINT')
     obsoleteProcesses.forEach(p => p.kill('SIGINT'))
     console.log("Child processes terminated...")
+    process.kill('SIGINT')
 })
