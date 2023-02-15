@@ -125,16 +125,18 @@ async function watchRelativeDepsWithNext() {
     await installRelativeDeps()
     startDevelopmentProcess();
 
-    Object.values(relativeDependencies).forEach(p => {
+    Object.keys(relativeDependencies).forEach(p => {
         console.log(projectPkgJson.path, p, relativeDependencies, relativeDependencies[p])
         const targetDir = path.dirname(projectPkgJson.path)
         const name = p;
         const libDir = path.resolve(targetDir, relativeDependencies[name])
         buildAndWatchNextLibrary(name, libDir)
+        const watchDir = path.join(libDir, "dist")
+        console.log(`Watching ${watchDir}`)
         fs.watch(
-            path.join(p, "dist"),
+            watchDir,
             {recursive: true},
-            debounce(installRelativeDepsWithNext, 2500))
+            debounce(installRelativeDepsWithNext, 500))
     });
 }
 
