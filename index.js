@@ -126,6 +126,7 @@ async function watchRelativeDepsWithNext() {
     startDevelopmentProcess();
 
     Object.values(relativeDependencies).forEach(p => {
+        console.log(projectPkgJson.path, p, relativeDependencies[p])
         const targetDir = path.dirname(projectPkgJson.path)
         const name = p;
         const libDir = path.resolve(targetDir, relativeDependencies[name])
