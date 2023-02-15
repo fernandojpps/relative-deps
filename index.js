@@ -70,15 +70,9 @@ let existingProcess = undefined
 let buildWatchProcess = undefined
 let cpxWatchProcess = undefined
 let obsoleteProcesses = []
-let running = false
 
 async function installRelativeDepsWithNext() {
-    if (running) {
-        console.log("\x1b[33m[relative-deps]\x1b[0m Change detected but ignored")
-        return
-    }
     try {
-        running = true
         const startMs = new Date()
         const reloaded = await installRelativeDeps(true)
         if (reloaded) {
@@ -97,8 +91,7 @@ async function installRelativeDepsWithNext() {
         }
     } catch (err) {
         console.error("\x1b[31m[relative-deps]\x1b[0m", err)
-    } finally {
-        running = false
+        installRelativeDepsWithNext()
     }
 }
 
