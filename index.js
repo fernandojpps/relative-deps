@@ -16,7 +16,7 @@ async function installRelativeDeps(skipBuild) {
     const relativeDependencies = projectPkgJson.package.relativeDependencies
 
     if (!relativeDependencies) {
-        console.warn("[relative-deps][WARN] No 'relativeDependencies' specified in package.json")
+        console.warn("\x1b[33m[relative-deps]\x1b[0m[WARN] No 'relativeDependencies' specified in package.json")
         process.exit(0)
     }
 
@@ -25,25 +25,25 @@ async function installRelativeDeps(skipBuild) {
     const depNames = Object.keys(relativeDependencies)
     for (const name of depNames) {
         const libDir = path.resolve(targetDir, relativeDependencies[name])
-        console.log(`[relative-deps] Checking '${name}' in '${libDir}'`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Checking '${name}' in '${libDir}'`)
 
         const regularDep =
             (projectPkgJson.package.dependencies && projectPkgJson.package.dependencies[name]) ||
             (projectPkgJson.package.devDependencies && projectPkgJson.package.devDependencies[name])
 
         if (!regularDep) {
-            console.warn(`[relative-deps][WARN] The relative dependency '${name}' should also be added as normal- or dev-dependency`)
+            console.warn(`\x1b[33m[relative-deps]\x1b[0m[WARN] The relative dependency '${name}' should also be added as normal- or dev-dependency`)
         }
 
         // Check if target dir exists
         if (!fs.existsSync(libDir)) {
             // Nope, but is the dependency mentioned as normal dependency in the package.json? Use that one
             if (regularDep) {
-                console.warn(`[relative-deps][WARN] Could not find target directory '${libDir}', using normally installed version ('${regularDep}') instead`)
+                console.warn(`\x1b[33m[relative-deps]\x1b[0m[WARN] Could not find target directory '${libDir}', using normally installed version ('${regularDep}') instead`)
                 return
             } else {
                 console.error(
-                    `[relative-deps][ERROR] Failed to resolve dependency ${name}: failed to find target directory '${libDir}', and the library is not present as normal depenency either`
+                    `\x1b[33m[relative-deps]\x1b[0m[ERROR] Failed to resolve dependency ${name}: failed to find target directory '${libDir}', and the library is not present as normal depenency either`
                 )
                 process.exit(1)
             }
@@ -60,7 +60,7 @@ async function installRelativeDeps(skipBuild) {
             }
             await packAndInstallLibrary(name, libDir, targetDir)
             fs.writeFileSync(hashStore.file, hashStore.hash)
-            console.log(`[relative-deps] Re-installing ${name}... DONE`)
+            console.log(`\x1b[33m[relative-deps]\x1b[0m Re-installing ${name}... DONE`)
         }
         return hasChanges
     }
@@ -82,10 +82,10 @@ async function installRelativeDepsWithNext() {
         if (fs.existsSync(".next")) {
             await rimraf(".next", {preserveRoot: true})
         }
-        console.log(`[relative-deps] Reloading next dev evironment`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment`)
         startDevelopmentProcess()
-        console.log(`[relative-deps] Reloading next dev evironment... DONE`)
-        console.log(`[relative-deps] Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
     }
 }
 
@@ -95,7 +95,7 @@ async function watchRelativeDeps() {
     const relativeDependencies = projectPkgJson.package.relativeDependencies
 
     if (!relativeDependencies) {
-        console.warn("[relative-deps][WARN] No 'relativeDependencies' specified in package.json")
+        console.warn("\x1b[33m[relative-deps]\x1b[0m[WARN] No 'relativeDependencies' specified in package.json")
         process.exit(0)
     }
 
@@ -115,7 +115,7 @@ async function watchRelativeDepsWithNext() {
     const relativeDependencies = projectPkgJson.package.relativeDependencies
 
     if (!relativeDependencies) {
-        console.warn("[relative-deps][WARN] No 'relativeDependencies' specified in package.json")
+        console.warn("\x1b[33m[relative-deps]\x1b[0m[WARN] No 'relativeDependencies' specified in package.json")
         process.exit(0)
     }
 
@@ -152,7 +152,7 @@ async function libraryHasChanged(name, libDir, targetDir, hashStore) {
     hashStore.hash = contents
     if (contents === referenceContents) {
         // computed hashes still the same?
-        console.log("[relative-deps] No changes")
+        console.log("\x1b[33m[relative-deps]\x1b[0m No changes")
         return false
     }
     // Print which files did change
@@ -161,7 +161,7 @@ async function libraryHasChanged(name, libDir, targetDir, hashStore) {
         const refLines = referenceContents.split("\n")
         for (let i = 0; i < contentsLines.length; i++)
             if (contentsLines[i] !== refLines[i]) {
-                console.log("[relative-deps] Changed file: " + libFiles[i]) //, contentsLines[i], refLines[i])
+                console.log("\x1b[33m[relative-deps]\x1b[0m Changed file: " + libFiles[i]) //, contentsLines[i], refLines[i])
                 break
             }
     }
@@ -186,18 +186,18 @@ async function findFiles(libDir, targetDir) {
 function buildLibrary(name, dir) {
     // Run install if never done before
     if (!fs.existsSync(path.join(dir, "node_modules"))) {
-        console.log(`[relative-deps] Running 'install' in ${dir}`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'install' in ${dir}`)
         spawn.sync(["install"], {cwd: dir, stdio: [0, 1, 2]})
     }
 
     // Run build script if present
     const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
     if (!libraryPkgJson.name === name) {
-        console.error(`[relative-deps][ERROR] Mismatch in package name: found '${libraryPkgJson.name}', expected '${name}'`)
+        console.error(`\x1b[33m[relative-deps]\x1b[0m[ERROR] Mismatch in package name: found '${libraryPkgJson.name}', expected '${name}'`)
         process.exit(1)
     }
     if (libraryPkgJson.scripts && libraryPkgJson.scripts.build) {
-        console.log(`[relative-deps] Building ${name} in ${dir}`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Building ${name} in ${dir}`)
         spawn.sync(["run", "build"], {cwd: dir, stdio: [0, 1, 2]})
     }
 }
@@ -225,7 +225,7 @@ function hookStdio(proc, label) {
 function buildAndWatchNextLibrary(name, dir) {
     // Run install if never done before
     if (!fs.existsSync(path.join(dir, "node_modules"))) {
-        console.log(`[relative-deps] Running 'install' in ${dir}`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'install' in ${dir}`)
         const installProcess = spawn.sync(["install"], {cwd: dir})
         hookStdio(installProcess, `${name}:npm install`);
     }
@@ -233,11 +233,11 @@ function buildAndWatchNextLibrary(name, dir) {
     // Run build script if present
     const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
     if (!libraryPkgJson.name === name) {
-        console.error(`[relative-deps][ERROR] Mismatch in package name: found '${libraryPkgJson.name}', expected '${name}'`)
+        console.error(`\x1b[33m[relative-deps]\x1b[0m[ERROR] Mismatch in package name: found '${libraryPkgJson.name}', expected '${name}'`)
         process.exit(1)
     }
     if (libraryPkgJson.scripts && libraryPkgJson.scripts.build) {
-        console.log(`[relative-deps] Building ${name} in ${dir}`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Building ${name} in ${dir}`)
         buildWatchProcess = spawn(["run", "dev"], {cwd: dir})
         hookStdio(buildWatchProcess, `${name}:npm run dev`);
         cpxWatchProcess = spawn(["run", "cpx:watch"], {cwd: dir})
@@ -249,7 +249,7 @@ async function packAndInstallLibrary(name, dir, targetDir) {
     const libDestDir = path.join(targetDir, "node_modules", name)
     let fullPackageName
     try {
-        console.log("[relative-deps] Copying to local node_modules")
+        console.log("\x1b[33m[relative-deps]\x1b[0m Copying to local node_modules")
         spawn.sync(["pack"], {cwd: dir})
 
         if (fs.existsSync(libDestDir)) {
@@ -265,7 +265,7 @@ async function packAndInstallLibrary(name, dir, targetDir) {
         const packagedName = fs.readdirSync(dir).find(file => regex.test(file))
         fullPackageName = path.join(dir, packagedName)
 
-        console.log(`[relative-deps] Extracting "${fullPackageName}" to ${libDestDir}`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Extracting "${fullPackageName}" to ${libDestDir}`)
 
         const [cwd, file] = [libDestDir, fullPackageName].map(absolutePath =>
             path.relative(process.cwd(), absolutePath)
@@ -300,7 +300,7 @@ function addScriptToPackage(script) {
         pkg.scripts = {}
     }
 
-    const msg = `[relative-deps] Adding relative-deps to ${script} script in package.json`
+    const msg = `\x1b[33m[relative-deps]\x1b[0m Adding relative-deps to ${script} script in package.json`
 
     if (!pkg.scripts[script]) {
         console.log(msg)
@@ -320,7 +320,7 @@ function installRelativeDepsPackage() {
         (pkg.devDependencies && pkg.devDependencies["relative-deps"]) ||
         (pkg.dependencies && pkg.dependencies["relative-deps"])
     )) {
-        console.log('[relative-deps] Installing relative-deps package')
+        console.log('\x1b[33m[relative-deps]\x1b[0m Installing relative-deps package')
         spawn.sync(["add", "-D", "relative-deps"])
     }
 }
@@ -329,7 +329,7 @@ function setupEmptyRelativeDeps() {
     let pkg = getPackageJson()
 
     if (!pkg.relativeDependencies) {
-        console.log(`[relative-deps] Setting up relativeDependencies section in package.json`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Setting up relativeDependencies section in package.json`)
         pkg.relativeDependencies = {}
         setPackageData(pkg)
     }
@@ -345,7 +345,7 @@ async function addRelativeDeps({paths, dev, script}) {
     initRelativeDeps({script})
 
     if (!paths || paths.length === 0) {
-        console.log(`[relative-deps][WARN] no paths provided running ${script}`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m[WARN] no paths provided running ${script}`)
         spawn.sync([script])
         return
     }
@@ -353,7 +353,7 @@ async function addRelativeDeps({paths, dev, script}) {
         const libPackagePath = path.resolve(process.cwd(), relPath, "package.json")
         if (!fs.existsSync(libPackagePath)) {
             console.error(
-                `[relative-deps][ERROR] Failed to resolve dependency ${relPath}`
+                `\x1b[33m[relative-deps]\x1b[0m[ERROR] Failed to resolve dependency ${relPath}`
             )
             process.exit(1)
         }
@@ -377,7 +377,7 @@ async function addRelativeDeps({paths, dev, script}) {
             try {
                 spawn.sync(["add", ...[dev ? ["-D"] : []], library.name], {stdio: "ignore"})
             } catch (_e) {
-                console.log(`[relative-deps][WARN] Unable to fetch ${library.name} from registry. Installing as a relative dependency only.`)
+                console.log(`\x1b[33m[relative-deps]\x1b[0m[WARN] Unable to fetch ${library.name} from registry. Installing as a relative dependency only.`)
             }
         }
     })
