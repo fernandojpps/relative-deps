@@ -204,7 +204,7 @@ function buildLibrary(name, dir) {
 
 function hookStdio(proc, label) {
     proc.stdout.on('data', (data) => {
-        console.log(`[${label}] ${String(data).trim()}`);
+        console.log(`\x1b[94m[${label}]\x1b[0m ${String(data).trim()}`);
     });
     proc.stderr.on('data', (data) => {
         console.error(`[${label}] ${String(data).trim()}`);
@@ -242,8 +242,7 @@ function packAndInstallLibrary(name, dir, targetDir) {
     let fullPackageName
     try {
         console.log("[relative-deps] Copying to local node_modules")
-        const packProcess = spawn.sync(["pack"], {cwd: dir})
-        hookStdio(packProcess, `[pack]`)
+        spawn.sync(["pack"], {cwd: dir, stdio: [0, 1, 2]})
 
         if (fs.existsSync(libDestDir)) {
             // TODO: should we really remove it? Just overwritting could be fine
