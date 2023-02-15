@@ -81,11 +81,12 @@ async function installRelativeDepsWithNext() {
     const startMs = new Date()
     const reloaded = await installRelativeDeps(true)
     if (reloaded) {
-        if (existingProcess) {
-            obsoleteProcesses.push(existingProcess)
-        }
-        obsoleteProcesses.forEach(p => p.kill())
-        setTimeout(async () => {
+        try {
+            if (existingProcess) {
+                obsoleteProcesses.push(existingProcess)
+            }
+            obsoleteProcesses.forEach(p => p.kill())
+
             if (fs.existsSync(".next")) {
                 await rimraf(".next/cache", { preserveRoot: true })
                 await rimraf(".next/trace", { preserveRoot: true })
@@ -94,8 +95,11 @@ async function installRelativeDepsWithNext() {
             startDevelopmentProcess()
             console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
             console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+        } catch (err) {
+            console.error("\x1b[31m[relative-deps]\x1b[0m", err)
+        } finally {
             running = false
-        }, 100)
+        }
     }
 }
 
