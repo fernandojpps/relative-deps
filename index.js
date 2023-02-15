@@ -204,10 +204,10 @@ function buildLibrary(name, dir) {
 
 function hookStdio(proc, label) {
     proc.stdout.on('data', (data) => {
-        console.log(`[${label}] ${data.trim()}`);
+        console.log(`[${label}] ${String(data).trim()}`);
     });
     proc.stderr.on('data', (data) => {
-        console.error(`[${label}] ${data.trim()}`);
+        console.error(`[${label}] ${String(data).trim()}`);
     });
     proc.on('close', (code) => {
         console.log(`[${label}] process exited with code ${code}`);
