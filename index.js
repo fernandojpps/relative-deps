@@ -80,7 +80,7 @@ async function installRelativeDepsWithNext() {
         }
         obsoleteProcesses.forEach(p => p.kill())
         if (fs.existsSync(".next")) {
-            await rimraf(".next", {preserveRoot: true})
+            await rimraf.native(".next", {preserveRoot: true})
         }
         console.log(`[relative-deps] Reloading next dev evironment`)
         startDevelopmentProcess()
@@ -120,7 +120,7 @@ async function watchRelativeDepsWithNext() {
     }
 
     if (fs.existsSync(".next")) {
-        await rimraf(".next", {preserveRoot: true})
+        await rimraf.native(".next", {preserveRoot: true})
     }
     await installRelativeDeps()
     startDevelopmentProcess();
@@ -254,7 +254,7 @@ async function packAndInstallLibrary(name, dir, targetDir) {
 
         if (fs.existsSync(libDestDir)) {
             // TODO: should we really remove it? Just overwritting could be fine
-            await rimraf(libDestDir, {preserveRoot: true})
+            await rimraf.native(libDestDir, {preserveRoot: true})
         }
         fs.mkdirSync(libDestDir, {recursive: true})
 
