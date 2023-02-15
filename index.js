@@ -106,7 +106,7 @@ async function watchRelativeDeps() {
 
 function startDevelopmentProcess() {
     existingProcess = spawn(["run", "dev"], {cwd: process.cwd()})
-    hookStdio(name, existingProcess, `npm run dev`);
+    hookStdio(existingProcess, `npm run dev`);
 }
 
 async function watchRelativeDepsWithNext() {
@@ -213,7 +213,7 @@ function buildAndWatchNextLibrary(name, dir) {
     if (!fs.existsSync(path.join(dir, "node_modules"))) {
         console.log(`[relative-deps] Running 'install' in ${dir}`)
         const installProcess = spawn.sync(["install"], {cwd: dir})
-        hookStdio(name, installProcess, `${name}:npm install`);
+        hookStdio(installProcess, `${name}:npm install`);
     }
 
     // Run build script if present
@@ -225,9 +225,9 @@ function buildAndWatchNextLibrary(name, dir) {
     if (libraryPkgJson.scripts && libraryPkgJson.scripts.build) {
         console.log(`[relative-deps] Building ${name} in ${dir}`)
         buildWatchProcess = spawn(["run", "dev"], {cwd: dir})
-        hookStdio(name, buildWatchProcess, `${name}:npm run dev`);
+        hookStdio(buildWatchProcess, `${name}:npm run dev`);
         cpxWatchProcess = spawn(["run", "cpx:watch"], {cwd: dir})
-        hookStdio(name, cpxWatchProcess, `${name}:npm run cpx:watch`);
+        hookStdio(cpxWatchProcess, `${name}:npm run cpx:watch`);
     }
 }
 
