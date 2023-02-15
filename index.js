@@ -142,7 +142,7 @@ async function watchRelativeDepsWithNext() {
                     console.log("\x1b[33m[relative-deps]\x1b[0m Change detected but ignored")
                 } else {
                     running = true
-                    installRelativeDepsWithNext();
+                    debounce(installRelativeDepsWithNext, 100)();
                     running = false
                 }
             })
