@@ -211,10 +211,14 @@ function hookStdio(proc, label) {
         console.log(`\x1b[94m[${label}]\x1b[0m ${String(data).trim()}`);
     });
     proc.stderr.on('data', (data) => {
-        console.error(`[${label}] ${String(data).trim()}`);
+        if (String(data) === "\033[2J" || String(data) === "\033c") {
+            console.log(`\x1b[31m[${label}]\x1b[0m Tried to clear console`);
+            return;
+        }
+        console.error(`\x1b[31m[${label}]\x1b[0m ${String(data).trim()}`);
     });
     proc.on('close', (code) => {
-        console.log(`[${label}] process exited with code ${code}`);
+        console.log(`\x1b[90m[${label}]\x1b[0m process exited with code ${code}`);
     });
 }
 
