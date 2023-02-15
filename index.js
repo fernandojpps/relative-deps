@@ -133,10 +133,19 @@ async function watchRelativeDepsWithNext() {
         buildAndWatchNextLibrary(name, libDir)
         const watchDir = path.join(libDir, "dist")
         console.log(`Watching ${watchDir}`)
+        let running = false
         fs.watch(
             watchDir,
             {recursive: true},
-            debounce(installRelativeDepsWithNext, 500))
+            () => {
+                if (running) {
+                    console.log("\x1b[33m[relative-deps]\x1b[0m Change detected but ignored")
+                } else {
+                    running = true
+                    debounce(installRelativeDepsWithNext, 100);
+                    running = false
+                }
+            })
     });
 }
 
