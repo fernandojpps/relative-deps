@@ -77,11 +77,11 @@ async function installRelativeDepsWithNext() {
         console.log("\x1b[33m[relative-deps]\x1b[0m Change detected but ignored")
         return
     }
-    running = true
-    const startMs = new Date()
-    const reloaded = await installRelativeDeps(true)
-    if (reloaded) {
-        try {
+    try {
+        running = true
+        const startMs = new Date()
+        const reloaded = await installRelativeDeps(true)
+        if (reloaded) {
             if (existingProcess) {
                 obsoleteProcesses.push(existingProcess)
             }
@@ -95,11 +95,11 @@ async function installRelativeDepsWithNext() {
             startDevelopmentProcess()
             console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
             console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
-        } catch (err) {
-            console.error("\x1b[31m[relative-deps]\x1b[0m", err)
-        } finally {
-            running = false
         }
+    } catch (err) {
+        console.error("\x1b[31m[relative-deps]\x1b[0m", err)
+    } finally {
+        running = false
     }
 }
 
