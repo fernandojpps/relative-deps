@@ -7,7 +7,7 @@ const globby = require("globby")
 const checksum = require("checksum")
 const merge = require("lodash/merge")
 const debounce = require("lodash/debounce")
-const {spawn} = require("yarn-or-npm")
+const { spawn } = require("yarn-or-npm")
 const tar = require("tar")
 
 async function installRelativeDeps(skipBuild) {
@@ -70,8 +70,14 @@ let existingProcess = undefined
 let buildWatchProcess = undefined
 let cpxWatchProcess = undefined
 let obsoleteProcesses = []
+let running = false
 
 async function installRelativeDepsWithNext() {
+    if (running) {
+        console.log("\x1b[33m[relative-deps]\x1b[0m Change detected but ignored")
+        return
+    }
+    running = true
     const startMs = new Date()
     const reloaded = await installRelativeDeps(true)
     if (reloaded) {
@@ -80,13 +86,14 @@ async function installRelativeDepsWithNext() {
         }
         obsoleteProcesses.forEach(p => p.kill())
         if (fs.existsSync(".next")) {
-            await rimraf(".next", {preserveRoot: true})
+            await rimraf(".next", { preserveRoot: true })
         }
         console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment`)
         startDevelopmentProcess()
         console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
         console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
     }
+    running = false
 }
 
 async function watchRelativeDeps() {
@@ -100,12 +107,12 @@ async function watchRelativeDeps() {
     }
 
     Object.values(relativeDependencies).forEach(path => {
-        fs.watch(path, {recursive: true}, debounce(installRelativeDeps, 500))
+        fs.watch(path, { recursive: true }, debounce(installRelativeDeps, 500))
     });
 }
 
 function startDevelopmentProcess() {
-    existingProcess = spawn(["run", "dev"], {cwd: process.cwd()})
+    existingProcess = spawn(["run", "dev"], { cwd: process.cwd() })
     hookStdio(existingProcess, `npm run dev`);
 }
 
@@ -120,7 +127,7 @@ async function watchRelativeDepsWithNext() {
     }
 
     if (fs.existsSync(".next")) {
-        await rimraf(".next", {preserveRoot: true})
+        await rimraf(".next", { preserveRoot: true })
     }
     await installRelativeDeps()
     startDevelopmentProcess();
@@ -133,20 +140,11 @@ async function watchRelativeDepsWithNext() {
         buildAndWatchNextLibrary(name, libDir)
         const watchDir = path.join(libDir, "dist")
         console.log(`Watching ${watchDir}`)
-        let running = false
         fs.watch(
             watchDir,
-            {recursive: true},
-            () => {
-                if (running) {
-                    console.log("\x1b[33m[relative-deps]\x1b[0m Change detected but ignored")
-                } else {
-                    running = true
-                    console.log("\x1b[33m[relative-deps]\x1b[0m Change detected")
-                    debounce(installRelativeDepsWithNext, 500)();
-                    running = false
-                }
-            })
+            { recursive: true },
+            debounce(installRelativeDepsWithNext, 300)
+        )
     });
 }
 
@@ -197,7 +195,7 @@ function buildLibrary(name, dir) {
     // Run install if never done before
     if (!fs.existsSync(path.join(dir, "node_modules"))) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'install' in ${dir}`)
-        spawn.sync(["install"], {cwd: dir, stdio: [0, 1, 2]})
+        spawn.sync(["install"], { cwd: dir, stdio: [0, 1, 2] })
     }
 
     // Run build script if present
@@ -208,7 +206,7 @@ function buildLibrary(name, dir) {
     }
     if (libraryPkgJson.scripts && libraryPkgJson.scripts.build) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Building ${name} in ${dir}`)
-        spawn.sync(["run", "build"], {cwd: dir, stdio: [0, 1, 2]})
+        spawn.sync(["run", "build"], { cwd: dir, stdio: [0, 1, 2] })
     }
 }
 
@@ -236,7 +234,7 @@ function buildAndWatchNextLibrary(name, dir) {
     // Run install if never done before
     if (!fs.existsSync(path.join(dir, "node_modules"))) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'install' in ${dir}`)
-        const installProcess = spawn.sync(["install"], {cwd: dir})
+        const installProcess = spawn.sync(["install"], { cwd: dir })
         hookStdio(installProcess, `${name}:npm install`);
     }
 
@@ -248,9 +246,9 @@ function buildAndWatchNextLibrary(name, dir) {
     }
     if (libraryPkgJson.scripts && libraryPkgJson.scripts.build) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Building ${name} in ${dir}`)
-        buildWatchProcess = spawn(["run", "dev"], {cwd: dir})
+        buildWatchProcess = spawn(["run", "dev"], { cwd: dir })
         hookStdio(buildWatchProcess, `${name}:npm run dev`);
-        cpxWatchProcess = spawn(["run", "cpx:watch"], {cwd: dir})
+        cpxWatchProcess = spawn(["run", "cpx:watch"], { cwd: dir })
         hookStdio(cpxWatchProcess, `${name}:npm run cpx:watch`);
     }
 }
@@ -260,13 +258,13 @@ async function packAndInstallLibrary(name, dir, targetDir) {
     let fullPackageName
     try {
         console.log("\x1b[33m[relative-deps]\x1b[0m Copying to local node_modules")
-        spawn.sync(["pack"], {cwd: dir})
+        spawn.sync(["pack"], { cwd: dir })
 
         if (fs.existsSync(libDestDir)) {
             // TODO: should we really remove it? Just overwritting could be fine
-            await rimraf(libDestDir, {preserveRoot: true})
+            await rimraf(libDestDir, { preserveRoot: true })
         }
-        fs.mkdirSync(libDestDir, {recursive: true})
+        fs.mkdirSync(libDestDir, { recursive: true })
 
         const tmpName = name.replace(/[\s\/]/g, "-").replace(/@/g, "")
         // npm replaces @... with at- where yarn just removes it, so we test for both files here
@@ -345,14 +343,14 @@ function setupEmptyRelativeDeps() {
     }
 }
 
-function initRelativeDeps({script}) {
+function initRelativeDeps({ script }) {
     installRelativeDepsPackage()
     setupEmptyRelativeDeps()
     addScriptToPackage(script)
 }
 
-async function addRelativeDeps({paths, dev, script}) {
-    initRelativeDeps({script})
+async function addRelativeDeps({ paths, dev, script }) {
+    initRelativeDeps({ script })
 
     if (!paths || paths.length === 0) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m[WARN] no paths provided running ${script}`)
@@ -385,7 +383,7 @@ async function addRelativeDeps({paths, dev, script}) {
     libraries.forEach(library => {
         if (!pkg[depsKey][library.name]) {
             try {
-                spawn.sync(["add", ...[dev ? ["-D"] : []], library.name], {stdio: "ignore"})
+                spawn.sync(["add", ...[dev ? ["-D"] : []], library.name], { stdio: "ignore" })
             } catch (_e) {
                 console.log(`\x1b[33m[relative-deps]\x1b[0m[WARN] Unable to fetch ${library.name} from registry. Installing as a relative dependency only.`)
             }
