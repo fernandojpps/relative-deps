@@ -24,7 +24,7 @@ async function installRelativeDeps(skipBuild) {
 
     const depNames = Object.keys(relativeDependencies)
     for (const name of depNames) {
-        const libDir = path.join(path.resolve(targetDir, relativeDependencies[name]), 'dist')
+        const libDir = path.resolve(targetDir, relativeDependencies[name])
         console.log(`\x1b[33m[relative-deps]\x1b[0m Checking '${name}' in '${libDir}'`)
 
         const regularDep =
@@ -159,9 +159,10 @@ async function libraryHasChanged(name, libDir, targetDir, hashStore) {
     const hashFile = path.join(targetDir, "node_modules", name, ".relative-deps-hash")
     const referenceContents = fs.existsSync(hashFile) ? fs.readFileSync(hashFile, "utf8") : ""
     // compute the hahses
-    const libFiles = await findFiles(libDir, targetDir)
+    const distLibFiled = path.join(libDir, 'dist')
+    const libFiles = await findFiles(distLibFiled, targetDir)
     const hashes = []
-    for (file of libFiles) hashes.push(await getFileHash(path.join(libDir, file)))
+    for (file of libFiles) hashes.push(await getFileHash(path.join(distLibFiled, file)))
     const contents = libFiles.map((file, index) => hashes[index] + " " + file).join("\n")
     hashStore.file = hashFile
     hashStore.hash = contents
