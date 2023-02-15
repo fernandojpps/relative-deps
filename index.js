@@ -204,14 +204,14 @@ function buildLibrary(name, dir) {
 
 function hookStdio(proc, label) {
     proc.stdout.on('data', (data) => {
-        if (String(data) === "\033[2J" || String(data) === "\033c") {
+        if (String(data).includes("\033[2J") || String(data).includes("\033c")) {
             console.log(`\x1b[94m[${label}]\x1b[0m Tried to clear console`);
             return;
         }
         console.log(`\x1b[94m[${label}]\x1b[0m ${String(data).trim()}`);
     });
     proc.stderr.on('data', (data) => {
-        if (String(data) === "\033[2J" || String(data) === "\033c") {
+        if (String(data).includes("\033[2J") || String(data).includes("\033c")) {
             console.log(`\x1b[31m[${label}]\x1b[0m Tried to clear console`);
             return;
         }
