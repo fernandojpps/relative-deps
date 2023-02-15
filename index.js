@@ -204,10 +204,10 @@ function buildLibrary(name, dir) {
 
 function hookStdio(proc, label) {
     proc.stdout.on('data', (data) => {
-        console.log(`[${label}] ${data}`);
+        console.log(`[${label}] ${data.trim()}`);
     });
     proc.stderr.on('data', (data) => {
-        console.error(`[${label}] ${data}`);
+        console.error(`[${label}] ${data.trim()}`);
     });
     proc.on('close', (code) => {
         console.log(`[${label}] process exited with code ${code}`);
@@ -242,7 +242,8 @@ function packAndInstallLibrary(name, dir, targetDir) {
     let fullPackageName
     try {
         console.log("[relative-deps] Copying to local node_modules")
-        spawn.sync(["pack"], {cwd: dir, stdio: [0, 1, 2]})
+        const packProcess = spawn.sync(["pack"], {cwd: dir})
+        hookStdio(packProcess, `[pack]`)
 
         if (fs.existsSync(libDestDir)) {
             // TODO: should we really remove it? Just overwritting could be fine
@@ -409,5 +410,5 @@ process.on('SIGINT', () => {
     if (cpxWatchProcess) cpxWatchProcess.kill('SIGINT')
     obsoleteProcesses.forEach(p => p.kill('SIGINT'))
     console.log("Child processes terminated...")
-    process.kill('SIGINT')
+    process.exit(0)
 })
