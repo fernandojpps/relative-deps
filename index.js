@@ -242,7 +242,7 @@ function packAndInstallLibrary(name, dir, targetDir) {
     let fullPackageName
     try {
         console.log("[relative-deps] Copying to local node_modules")
-        spawn.sync(["pack"], {cwd: dir, stdio: [0, 1, 2]})
+        spawn.sync(["pack"], {cwd: dir})
 
         if (fs.existsSync(libDestDir)) {
             // TODO: should we really remove it? Just overwritting could be fine
