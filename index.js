@@ -85,15 +85,18 @@ async function installRelativeDepsWithNext() {
             obsoleteProcesses.push(existingProcess)
         }
         obsoleteProcesses.forEach(p => p.kill())
-        if (fs.existsSync(".next")) {
-            await rimraf(".next", { preserveRoot: true })
-        }
-        console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment`)
-        startDevelopmentProcess()
-        console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
-        console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+        setTimeout(async () => {
+            if (fs.existsSync(".next")) {
+                await rimraf(".next/cache", { preserveRoot: true })
+                await rimraf(".next/trace", { preserveRoot: true })
+            }
+            console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment`)
+            startDevelopmentProcess()
+            console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
+            console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+            running = false
+        }, 100)
     }
-    running = false
 }
 
 async function watchRelativeDeps() {
