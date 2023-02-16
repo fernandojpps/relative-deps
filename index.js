@@ -72,26 +72,29 @@ let cpxWatchProcess = undefined
 let obsoleteProcesses = []
 
 async function installRelativeDepsWithNext() {
-    try {
-        const startMs = new Date()
-        const reloaded = await installRelativeDeps(true)
-        if (reloaded) {
-            if (existingProcess) {
-                obsoleteProcesses.push(existingProcess)
-            }
-            obsoleteProcesses.forEach(p => p.kill())
+    const startMs = new Date()
+    const reloaded = await installRelativeDeps(true)
+    if (reloaded) {
+        if (existingProcess) {
+            obsoleteProcesses.push(existingProcess)
+        }
+        obsoleteProcesses.forEach(p => p.kill())
+        await removeNextCache()
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment`)
+        startDevelopmentProcess()
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+    }
+}
 
-            if (fs.existsSync(".next")) {
-                await rimraf(".next", { preserveRoot: true })
-            }
-            console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment`)
-            startDevelopmentProcess()
-            console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
-            console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+async function removeNextCache() {
+    try {
+        if (fs.existsSync(".next")) {
+            console.log(`\x1b[33m[relative-deps]\x1b[0m Removing next cache`)
+            await rimraf(".next", { preserveRoot: true })
         }
     } catch (err) {
-        console.error("\x1b[31m[relative-deps]\x1b[0m", err)
-        installRelativeDepsWithNext()
+        return await removeNextCache()
     }
 }
 
