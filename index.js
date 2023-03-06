@@ -469,6 +469,7 @@ function getPackageJson() {
 
 module.exports.watchRelativeDeps = watchRelativeDeps
 module.exports.watchRelativeDepsWithNext = watchRelativeDepsWithNext
+module.exports.watchRelativeDepsNewArch = watchRelativeDepsNewArch
 module.exports.installRelativeDeps = installRelativeDeps
 module.exports.initRelativeDeps = initRelativeDeps
 module.exports.addRelativeDeps = addRelativeDeps
