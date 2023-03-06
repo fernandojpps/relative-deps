@@ -193,13 +193,15 @@ async function watchRelativeDepsNewArch() {
     await installRelativeDeps()
     startDevelopmentProcess();
 
+    startApiProcess(name, path.resolve(path.dirname(projectPkgJson.path), "../the-good-store-api"));
+
     Object.keys(relativeDependencies).forEach(p => {
         console.log(projectPkgJson.path, p, relativeDependencies, relativeDependencies[p])
         const targetDir = path.dirname(projectPkgJson.path)
         const name = p;
         const libDir = path.resolve(targetDir, relativeDependencies[name])
 
-        // startApiProcess(name, libDir);
+
         startProxyProcess(name, libDir);
         // startBackofficeProcess(libdir);
 
