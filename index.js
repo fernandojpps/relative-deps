@@ -122,15 +122,25 @@ function startDevelopmentProcess() {
 }
 
 function startApiProcess(dir) {
-    console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:express' in ${dir}`)
-    apiProcess = spawn.sync(["run", "dev:express"], {cwd: dir})
-    hookStdio(apiProcess, `${name}:npm dev:express`);
+    const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
+    if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:express"]) {
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:express' in ${dir}`)
+        apiProcess = spawn.sync(["run", "dev:express"], {cwd: dir})
+        hookStdio(apiProcess, `${name}:npm dev:express`);
+    } else {
+        console.log("dev:express script not found")
+    }
 }
 
 function startProxyProcess(dir) {
-    console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:proxy' in ${dir}`)
-    proxyProcess = spawn.sync(["run", "dev:proxy"], {cwd: dir})
-    hookStdio(proxyProcess, `${name}:npm dev:proxy`);
+    const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
+    if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:proxy"]) {
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:proxy' in ${dir}`)
+        proxyProcess = spawn.sync(["run", "dev:proxy"], {cwd: dir})
+        hookStdio(proxyProcess, `${name}:npm dev:proxy`);
+    } else {
+        console.log("dev:proxy script not found")
+    }
 }
 
 async function watchRelativeDepsWithNext() {
@@ -187,8 +197,8 @@ async function watchRelativeDepsNewArch() {
         const name = p;
         const libDir = path.resolve(targetDir, relativeDependencies[name])
 
-        startProxyProcess(libDir)
         startApiProcess(libDir);
+        startProxyProcess(libDir);
         // startBackofficeProcess(libdir);
 
         buildAndWatchNextLibrary(name, libDir)
