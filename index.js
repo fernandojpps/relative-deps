@@ -121,7 +121,7 @@ function startDevelopmentProcess() {
     hookStdio(existingProcess, `npm run dev`);
 }
 
-function startApiProcess(dir) {
+function startApiProcess(name, dir) {
     const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
     console.log("Reading file", path.join(dir, "package.json"))
     if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:express"]) {
@@ -133,7 +133,7 @@ function startApiProcess(dir) {
     }
 }
 
-function startProxyProcess(dir) {
+function startProxyProcess(name, dir) {
     const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
     console.log("Reading file", path.join(dir, "package.json"))
     if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:proxy"]) {
@@ -199,8 +199,8 @@ async function watchRelativeDepsNewArch() {
         const name = p;
         const libDir = path.resolve(targetDir, relativeDependencies[name])
 
-        startApiProcess(libDir);
-        startProxyProcess(libDir);
+        startApiProcess(name, libDir);
+        startProxyProcess(name, libDir);
         // startBackofficeProcess(libdir);
 
         buildAndWatchNextLibrary(name, libDir)
