@@ -199,7 +199,7 @@ async function watchRelativeDepsNewArch() {
         const name = p;
         const libDir = path.resolve(targetDir, relativeDependencies[name])
 
-        startApiProcess(name, libDir);
+        // startApiProcess(name, libDir);
         startProxyProcess(name, libDir);
         // startBackofficeProcess(libdir);
 
