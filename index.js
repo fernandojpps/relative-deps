@@ -126,7 +126,7 @@ function startApiProcess(dir) {
     console.log("Reading file", path.join(dir, "package.json"))
     if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:express"]) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:express' in ${dir}`)
-        apiProcess = spawn.sync(["run", "dev:express"], {cwd: dir})
+        apiProcess = spawn(["run", "dev:express"], {cwd: dir})
         hookStdio(apiProcess, `${name}:npm dev:express`);
     } else {
         console.log("dev:express script not found")
@@ -138,7 +138,7 @@ function startProxyProcess(dir) {
     console.log("Reading file", path.join(dir, "package.json"))
     if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:proxy"]) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:proxy' in ${dir}`)
-        proxyProcess = spawn.sync(["run", "dev:proxy"], {cwd: dir})
+        proxyProcess = spawn(["run", "dev:proxy"], {cwd: dir})
         hookStdio(proxyProcess, `${name}:npm dev:proxy`);
     } else {
         console.log("dev:proxy script not found")
