@@ -123,6 +123,7 @@ function startDevelopmentProcess() {
 
 function startApiProcess(dir) {
     const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
+    console.log("Reading file", path.join(dir, "package.json"))
     if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:express"]) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:express' in ${dir}`)
         apiProcess = spawn.sync(["run", "dev:express"], {cwd: dir})
@@ -134,6 +135,7 @@ function startApiProcess(dir) {
 
 function startProxyProcess(dir) {
     const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
+    console.log("Reading file", path.join(dir, "package.json"))
     if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:proxy"]) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:proxy' in ${dir}`)
         proxyProcess = spawn.sync(["run", "dev:proxy"], {cwd: dir})
