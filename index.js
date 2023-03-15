@@ -162,7 +162,7 @@ function startBackofficeProcess(name, dir) {
     if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev"]) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev' in ${dir}`)
         if (backofficeProcess) backofficeProcess.kill('SIGINT')
-        backofficeProcess = spawn(["run", "dev:express"], {cwd: dir})
+        backofficeProcess = spawn(["run", "dev"], {cwd: dir})
         hookStdio(backofficeProcess, `${name}:npm dev`);
     } else {
         console.log("dev script not found")
