@@ -251,7 +251,8 @@ async function watchRelativeDepsNewArch() {
     startDevelopmentProcess();
 
     startApiProcess("thegoodstore-api", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-api"));
-    startBackofficeProcess("thegoodstore-backoffice", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-backoffice"));
+    // startBackofficeProcess("thegoodstore-backoffice", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-backoffice"));
+    await installRelativeDepsWithNextInBackoffice()
 
     Object.keys(relativeDependencies).forEach(p => {
         console.log(projectPkgJson.path, p, relativeDependencies, relativeDependencies[p])
