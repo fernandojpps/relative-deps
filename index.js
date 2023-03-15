@@ -121,12 +121,12 @@ async function installRelativeDepsWithNextInApi() {
     }
 }
 
-async function installRelativeDepsWithNextInBackoffice() {
+async function installRelativeDepsWithNextInBackoffice(force) {
     const projectPkgJson = readPkgUp.sync()
     const startMs = new Date()
     const projPath = path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-backoffice")
     const reloaded = await installRelativeDeps(true, projPath)
-    if (reloaded) {
+    if (reloaded || force) {
         await removeNextCache(projPath)
         startBackofficeProcess("thegoodstore-backoffice", projPath);
         console.log(`\x1b[33m[relative-deps]\x1b[0m Reinstalled lib in thegoodstore-backoffice in ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
@@ -252,7 +252,7 @@ async function watchRelativeDepsNewArch() {
 
     startApiProcess("thegoodstore-api", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-api"));
     // startBackofficeProcess("thegoodstore-backoffice", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-backoffice"));
-    await installRelativeDepsWithNextInBackoffice()
+    await installRelativeDepsWithNextInBackoffice(true)
 
     Object.keys(relativeDependencies).forEach(p => {
         console.log(projectPkgJson.path, p, relativeDependencies, relativeDependencies[p])
