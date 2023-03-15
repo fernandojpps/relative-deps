@@ -88,7 +88,28 @@ async function installRelativeDepsWithNext() {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
         console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
     }
-    await installRelativeDepsWithNextInApi()
+}
+
+async function installRelativeDepsWithNextNewArch() {
+    const startMs = new Date()
+    const reloaded = await installRelativeDeps(true)
+    if (reloaded) {
+        if (existingProcess) {
+            obsoleteProcesses.push(existingProcess)
+        }
+        obsoleteProcesses.forEach(p => p.kill())
+        await Promise.all([
+            installRelativeDepsWithNextInApi(),
+            installRelativeDepsWithNextInBackoffice(),
+            (async () => {
+                await removeNextCache()
+                console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment`)
+                startDevelopmentProcess()
+                console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
+                console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+            })()
+        ])
+    }
 }
 
 async function installRelativeDepsWithNextInApi() {
@@ -100,7 +121,7 @@ async function installRelativeDepsWithNextInApi() {
     }
 }
 
-async function installRelativeDepsWithNextInApi() {
+async function installRelativeDepsWithNextInBackoffice() {
     const projectPkgJson = readPkgUp.sync()
     const startMs = new Date()
     const projPath = path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-backoffice")
@@ -248,7 +269,7 @@ async function watchRelativeDepsNewArch() {
         fs.watch(
             watchDir,
             {recursive: true},
-            debounce(installRelativeDepsWithNext, 300)
+            debounce(installRelativeDepsWithNextNewArch, 300)
         )
     });
 }
