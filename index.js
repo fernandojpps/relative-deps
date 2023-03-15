@@ -163,7 +163,7 @@ function startBackofficeProcess(name, dir) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:express' in ${dir}`)
         if (backofficeProcess) backofficeProcess.kill('SIGINT')
         backofficeProcess = spawn(["run", "dev:express"], {cwd: dir})
-        hookStdio(backofficeProcess, `${name}:npm dev:express`);
+        hookStdio(backofficeProcess, `${name}:npm dev`);
     } else {
         console.log("dev script not found")
     }
