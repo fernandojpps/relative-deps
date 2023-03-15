@@ -10,7 +10,7 @@ const debounce = require("lodash/debounce")
 const {spawn} = require("yarn-or-npm")
 const tar = require("tar")
 
-async function installRelativeDeps(skipBuild) {
+async function installRelativeDeps(skipBuild, customTargetDir) {
     const projectPkgJson = readPkgUp.sync()
 
     const relativeDependencies = projectPkgJson.package.relativeDependencies
@@ -20,7 +20,7 @@ async function installRelativeDeps(skipBuild) {
         process.exit(0)
     }
 
-    const targetDir = path.dirname(projectPkgJson.path)
+    const targetDir = customTargetDir ?? path.dirname(projectPkgJson.path)
 
     const depNames = Object.keys(relativeDependencies)
     for (const name of depNames) {
@@ -88,6 +88,16 @@ async function installRelativeDepsWithNext() {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment... DONE`)
         console.log(`\x1b[33m[relative-deps]\x1b[0m Ready after ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
     }
+    await installRelativeDepsWithNextInApi()
+}
+
+async function installRelativeDepsWithNextInApi() {
+    const projectPkgJson = readPkgUp.sync()
+    const startMs = new Date()
+    const reloaded = await installRelativeDeps(true, path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-api"))
+    if (reloaded) {
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Reinstalled lib in thegoodstore-api in ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+    }
 }
 
 async function removeNextCache() {
@@ -126,6 +136,7 @@ function startApiProcess(name, dir) {
     console.log("Reading file", path.join(dir, "package.json"))
     if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:express"]) {
         console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:express' in ${dir}`)
+        if (apiProcess) apiProcess.kill('SIGINT')
         apiProcess = spawn(["run", "dev:express"], {cwd: dir})
         hookStdio(apiProcess, `${name}:npm dev:express`);
     } else {
