@@ -159,8 +159,8 @@ function startApiProcess(name, dir) {
 function startBackofficeProcess(name, dir) {
     const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
     console.log("Reading file", path.join(dir, "package.json"))
-    if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:express"]) {
-        console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:express' in ${dir}`)
+    if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev"]) {
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev' in ${dir}`)
         if (backofficeProcess) backofficeProcess.kill('SIGINT')
         backofficeProcess = spawn(["run", "dev:express"], {cwd: dir})
         hookStdio(backofficeProcess, `${name}:npm dev`);
