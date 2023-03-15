@@ -100,11 +100,23 @@ async function installRelativeDepsWithNextInApi() {
     }
 }
 
-async function removeNextCache() {
+async function installRelativeDepsWithNextInApi() {
+    const projectPkgJson = readPkgUp.sync()
+    const startMs = new Date()
+    const projPath = path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-backoffice")
+    const reloaded = await installRelativeDeps(true, projPath)
+    if (reloaded) {
+        await removeNextCache(projPath)
+        startBackofficeProcess("thegoodstore-backoffice", projPath);
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Reinstalled lib in thegoodstore-backoffice in ${(new Date().valueOf() - startMs.valueOf()) / 1000}s`)
+    }
+}
+
+async function removeNextCache(basePath = "") {
     try {
-        if (fs.existsSync(".next")) {
+        if (fs.existsSync(path.join(basePath, ".next"))) {
             console.log(`\x1b[33m[relative-deps]\x1b[0m Removing next cache`)
-            await rimraf(".next", {preserveRoot: true})
+            await rimraf(path.join(basePath, ".next"), {preserveRoot: true})
         }
     } catch (err) {
         return await removeNextCache()
@@ -141,6 +153,19 @@ function startApiProcess(name, dir) {
         hookStdio(apiProcess, `${name}:npm dev:express`);
     } else {
         console.log("dev:express script not found")
+    }
+}
+
+function startBackofficeProcess(name, dir) {
+    const libraryPkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"))
+    console.log("Reading file", path.join(dir, "package.json"))
+    if (libraryPkgJson.scripts && libraryPkgJson.scripts["dev:express"]) {
+        console.log(`\x1b[33m[relative-deps]\x1b[0m Running 'dev:express' in ${dir}`)
+        if (backofficeProcess) backofficeProcess.kill('SIGINT')
+        backofficeProcess = spawn(["run", "dev:express"], {cwd: dir})
+        hookStdio(backofficeProcess, `${name}:npm dev:express`);
+    } else {
+        console.log("dev script not found")
     }
 }
 
@@ -205,6 +230,7 @@ async function watchRelativeDepsNewArch() {
     startDevelopmentProcess();
 
     startApiProcess("thegoodstore-api", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-api"));
+    startBackofficeProcess("thegoodstore-backoffice", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-backoffice"));
 
     Object.keys(relativeDependencies).forEach(p => {
         console.log(projectPkgJson.path, p, relativeDependencies, relativeDependencies[p])
