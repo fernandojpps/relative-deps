@@ -100,7 +100,7 @@ async function installRelativeDepsWithNextNewArch() {
         obsoleteProcesses.forEach(p => p.kill())
         await Promise.all([
             installRelativeDepsWithNextInApi(),
-            installRelativeDepsWithNextInBackoffice(),
+            // installRelativeDepsWithNextInBackoffice(),
             (async () => {
                 await removeNextCache()
                 console.log(`\x1b[33m[relative-deps]\x1b[0m Reloading next dev evironment`)
@@ -252,7 +252,7 @@ async function watchRelativeDepsNewArch() {
 
     startApiProcess("thegoodstore-api", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-api"));
     // startBackofficeProcess("thegoodstore-backoffice", path.resolve(path.dirname(projectPkgJson.path), "../thegoodstore-backoffice"));
-    await installRelativeDepsWithNextInBackoffice(true)
+    // await installRelativeDepsWithNextInBackoffice(true)
 
     Object.keys(relativeDependencies).forEach(p => {
         console.log(projectPkgJson.path, p, relativeDependencies, relativeDependencies[p])
