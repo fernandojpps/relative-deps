@@ -219,13 +219,13 @@ async function watchRelativeDepsWithNext() {
     startDevelopmentProcess();
 
     Object.keys(relativeDependencies).forEach(p => {
-        console.log(projectPkgJson.path, p, relativeDependencies, relativeDependencies[p])
+        // console.log(projectPkgJson.path, p, relativeDependencies, relativeDependencies[p])
         const targetDir = path.dirname(projectPkgJson.path)
-        const name = p;
+        // const name = p;
         const libDir = path.resolve(targetDir, relativeDependencies[name])
-        buildAndWatchNextLibrary(name, libDir)
+        // buildAndWatchNextLibrary(name, libDir)
         const watchDir = path.join(libDir, "dist")
-        console.log(`Watching ${watchDir}`)
+        // console.log(`Watching ${watchDir}`)
         fs.watch(
             watchDir,
             {recursive: true},
@@ -373,11 +373,11 @@ function buildAndWatchNextLibrary(name, dir) {
         process.exit(1)
     }
     if (libraryPkgJson.scripts && libraryPkgJson.scripts.build) {
-        console.log(`\x1b[33m[relative-deps]\x1b[0m Building ${name} in ${dir}`)
-        buildWatchProcess = spawn(["run", "dev"], {cwd: dir})
-        hookStdio(buildWatchProcess, `${name}:npm run dev`);
-        cpxWatchProcess = spawn(["run", "cpx:watch"], {cwd: dir})
-        hookStdio(cpxWatchProcess, `${name}:npm run cpx:watch`);
+        // console.log(`\x1b[33m[relative-deps]\x1b[0m Building ${name} in ${dir}`)
+        // buildWatchProcess = spawn(["run", "dev"], {cwd: dir})
+        // hookStdio(buildWatchProcess, `${name}:npm run dev`);
+        // cpxWatchProcess = spawn(["run", "cpx:watch"], {cwd: dir})
+        // hookStdio(cpxWatchProcess, `${name}:npm run cpx:watch`);
     }
 }
 
